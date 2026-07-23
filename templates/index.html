@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Rice Leaf Disease Prediction</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>🌾 Rice Leaf Disease Prediction</h1>
+        <p class="subtitle">Upload a photo of a rice (paddy) leaf to detect possible disease.</p>
+
+        {% if error %}
+            <div class="error">{{ error }}</div>
+        {% endif %}
+
+        <form action="/predict" method="post" enctype="multipart/form-data" class="upload-form">
+            <input type="file" name="file" accept="image/png, image/jpeg" required>
+            <button type="submit">Predict</button>
+        </form>
+
+        {% if image_url %}
+        <div class="result-card">
+            <img src="{{ image_url }}" alt="Uploaded leaf" class="preview">
+            <div class="predictions">
+                <h2>Predictions</h2>
+                <ul>
+                {% for label, confidence in results %}
+                    <li class="{{ 'top' if loop.first else '' }}">
+                        <span class="label">{{ label }}</span>
+                        <span class="confidence">{{ '%.2f' % confidence }}%</span>
+                    </li>
+                {% endfor %}
+                </ul>
+            </div>
+
+            {% if top_info %}
+            <div class="info-card">
+                <h3>About {{ results[0][0] }} <span class="severity severity-{{ top_info.severity|lower|replace(' ', '-') }}">{{ top_info.severity }} severity</span></h3>
+                <p>{{ top_info.description }}</p>
+                <h4>Recommended Management</h4>
+                <p>{{ top_info.management }}</p>
+                <p class="disclaimer">⚠️ This is general guidance only. Please confirm with a local agricultural extension officer before applying treatment.</p>
+            </div>
+            {% endif %}
+        </div>
+        {% endif %}
+    </div>
+</body>
+</html>
